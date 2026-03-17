@@ -1,4 +1,13 @@
 """트렌드 기반 블로그 자동화 시스템 - 메인 실행 파일."""
+import os
+import sys
+
+# Windows 콘솔 UTF-8 설정 (이모지 출력용)
+if sys.platform == "win32":
+    os.system("chcp 65001 > nul 2>&1")
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table

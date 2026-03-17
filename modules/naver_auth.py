@@ -1,8 +1,10 @@
 """네이버 OAuth 2.0 인증 모듈."""
 
 import json
+import os
 import secrets
-import webbrowser
+import subprocess
+import sys
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlencode, urlparse, parse_qs
@@ -109,7 +111,12 @@ class NaverAuth:
 
         # 브라우저로 로그인
         url = self.get_authorize_url()
-        webbrowser.open(url)
+        if sys.platform == "win32":
+            os.startfile(url)
+        elif sys.platform == "darwin":
+            subprocess.run(["open", url])
+        else:
+            subprocess.run(["xdg-open", url])
         code, state = self.start_callback_server()
         tokens = self.fetch_token(code, state)
         self.save_tokens(tokens)
