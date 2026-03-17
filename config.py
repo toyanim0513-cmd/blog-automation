@@ -6,8 +6,7 @@ load_dotenv()
 # Naver API
 NAVER_CLIENT_ID = os.getenv("NAVER_CLIENT_ID")
 NAVER_CLIENT_SECRET = os.getenv("NAVER_CLIENT_SECRET")
-NAVER_BLOG_ID = os.getenv("NAVER_BLOG_ID")
-NAVER_BLOG_API_PASSWORD = os.getenv("NAVER_BLOG_API_PASSWORD")
+NAVER_REDIRECT_URI = "http://localhost:8888/callback"
 
 # OpenAI
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")

@@ -11,6 +11,7 @@ from modules.title_generator import TitleGenerator
 from modules.content_writer import ContentWriter
 from modules.image_generator import ImageGenerator
 from modules.blog_publisher import BlogPublisher
+from modules.naver_auth import NaverAuth
 
 console = Console()
 
@@ -125,7 +126,7 @@ def step7_generate_images(blog_title: str, curiosity: dict) -> list[str]:
     return images
 
 
-def step8_preview_and_publish(blog_title: str, content: str) -> None:
+def step8_preview_and_publish(blog_title: str, content: str, access_token: str) -> None:
     """STEP 8: 미리보기 및 발행."""
     console.print("\n[bold]━━ 미리보기 ━━[/]")
     console.print(Panel(content[:500] + "...", title=blog_title, subtitle="(일부만 표시)"))
@@ -135,13 +136,11 @@ def step8_preview_and_publish(blog_title: str, content: str) -> None:
         return
 
     console.print("\n[bold cyan]🚀 네이버 블로그에 발행 중...[/]")
-    publisher = BlogPublisher(config.NAVER_BLOG_ID, config.NAVER_BLOG_API_PASSWORD)
-    post_id = publisher.publish(title=blog_title, content=content)
+    publisher = BlogPublisher(access_token)
+    result = publisher.publish(title=blog_title, content=content)
 
-    if post_id:
-        url = publisher.get_blog_url(post_id)
+    if result:
         console.print(f"\n[bold green]✅ 발행 완료![/]")
-        console.print(f"🔗 {url}")
     else:
         console.print("[bold red]❌ 발행에 실패했습니다. API 설정을 확인해주세요.[/]")
 
@@ -152,6 +151,16 @@ def main():
         '"이걸 왜 알아야 하는지 알려주는 콘텐츠"',
         style="bold cyan",
     ))
+
+    # OAuth 로그인
+    console.print("\n[bold cyan]🔑 네이버 OAuth 로그인...[/]")
+    naver_auth = NaverAuth(
+        config.NAVER_CLIENT_ID,
+        config.NAVER_CLIENT_SECRET,
+        config.NAVER_REDIRECT_URI,
+    )
+    access_token = naver_auth.login()
+    console.print("[bold green]✅ 로그인 완료![/]")
 
     # STEP 1: 트렌드 수집
     trends = step1_collect_trends()
@@ -174,7 +183,7 @@ def main():
     step7_generate_images(blog_title, curiosity)
 
     # STEP 8: 미리보기 + 발행
-    step8_preview_and_publish(blog_title, content)
+    step8_preview_and_publish(blog_title, content, access_token)
 
 
 if __name__ == "__main__":

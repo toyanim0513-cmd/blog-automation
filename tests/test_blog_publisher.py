@@ -9,20 +9,23 @@ class TestBlogPublisher(unittest.TestCase):
     def test_publish_sends_correct_request(self, mock_post):
         mock_response = MagicMock()
         mock_response.status_code = 200
-        mock_response.text = '<?xml version="1.0"?><methodResponse><params><param><value><string>12345</string></value></param></params></methodResponse>'
+        mock_response.json.return_value = {"message": "success"}
         mock_post.return_value = mock_response
 
-        publisher = BlogPublisher("test_id", "test_password")
+        publisher = BlogPublisher("fake_access_token")
         result = publisher.publish(
             title="테스트 제목",
             content="<p>테스트 내용</p>",
         )
 
         mock_post.assert_called_once()
+        call_kwargs = mock_post.call_args
+        self.assertIn("Bearer fake_access_token", call_kwargs.kwargs["headers"]["Authorization"])
         self.assertIsNotNone(result)
+        self.assertEqual(result, "success")
 
     def test_wrap_content_includes_template(self):
-        publisher = BlogPublisher("test_id", "test_password")
+        publisher = BlogPublisher("fake_access_token")
         wrapped = publisher.wrap_content("<p>테스트</p>")
 
         self.assertIn("<p>테스트</p>", wrapped)
